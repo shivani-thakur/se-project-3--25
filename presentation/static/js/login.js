@@ -1,6 +1,5 @@
 document.getElementById('loginForm').addEventListener('submit', function(event) {
     event.preventDefault();
-    // Simple validation to check if fields are empty (update as per your validation logic)
     var username = document.getElementById('username').value;
     var password = document.getElementById('password').value;
     if (username && password) {
@@ -18,7 +17,6 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
             body: JSON.stringify(credentials)
         })
         .then(response => {
-            // Check if the HTTP status code is 200 or a specific success code that your API sends
             if (response.status == 200) {
                 window.location.href = '../templates/events.html';
             } else if(response.status == 401) {
