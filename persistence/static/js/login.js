@@ -20,7 +20,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
         .then(response => {
             // Check if the HTTP status code is 200 or a specific success code that your API sends
             if (response.status == 200) {
-                window.location.href = '../html/events.html';
+                window.location.href = '../templates/events.html';
             } else if(response.status == 401) {
                 throw new Error('Login failed: ' + response.statusText);
             } else {

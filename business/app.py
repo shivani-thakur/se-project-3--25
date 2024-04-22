@@ -33,15 +33,12 @@ class UserManagement:
         username = data.get('username')
         password = data.get('password')
         print("api hit successful")
-        # Query the database to find the user
         user = users.find_one({'userid': username, 'password': password})
 
         if user:
-            # If user is found, return success message
             return jsonify({"message": "Login successful"}), 200
         else:
             print("user not found")
-            # If user is not found, return error message
             return jsonify({"message": "Invalid username or password"}), 401
     
     @staticmethod
