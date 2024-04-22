@@ -1,3 +1,4 @@
+from business.command.invoker import CommandInvoker
 from flask import Flask, jsonify, request, Blueprint
 from pymongo import MongoClient
 from flask_cors import CORS
@@ -55,18 +56,29 @@ class UserManagement:
         return jsonify(all_users)
 
 class EventManagement:
+    commandInvoker = CommandInvoker()
     @staticmethod
     @api.route('/add_event', methods=['POST'])
     def add_event():
-        event_data = request.json
-        events.insert_one(event_data)
+        event_dto = request.json
+        # events.insert_one(event_data)
+        # put the above logic in command invoker
+        return CommandInvoker.invokeCommand("create_event", event_dto)
         return jsonify({"message": "Event added successfully!"})
-
+    
     @staticmethod
-    @api.route('/get_events', methods=['GET'])
-    def get_events():
-        all_events = list(events.find({}, {'_id': 0}))
-        return jsonify(all_events)
+    @api.route('/register', methods=['POST'])
+    def register_event():
+        register_dto = request.json
+        return CommandInvoker.invokeCommand("register_event", register_dto)
+
+    # @staticmethod
+    # @api.route('/get_events', methods=['GET'])
+    # def get_events():
+    #     all_events = list(events.find({}, {'_id': 0}))
+    #     return jsonify(all_events)
+    
+
 
 app.register_blueprint(api)
 
