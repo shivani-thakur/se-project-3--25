@@ -1,5 +1,5 @@
 
-from business.command.command import CreateEventCommand, RegisterEventCommand
+from command.command import CreateEventCommand, RegisterEventCommand
 
 
 class CommandInvoker:
