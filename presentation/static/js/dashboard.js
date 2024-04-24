@@ -1,52 +1,8 @@
-/*function openTab(evt, tabName) {
-    var i, tabcontent, tablinks;
-
-    tabcontent = document.getElementsByClassName("tabcontent");
-    for (i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
-    }
-
-    tablinks = document.getElementsByClassName("tablinks");
-    for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" active", "");
-    }
-
-    document.getElementById(tabName).style.display = "block";
-    evt.currentTarget.className += " active";
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    openTab(new Event('click'), 'YourEvents');
-
-    const username = 'currentUser';
-
-    fetch('http://127.0.0.1:5000/get_events')
-        .then(response => response.json())
-        .then(data => displayEvents(data, 'allEvents'));
-
-    fetch(`http://127.0.0.1:5000/get_events?creator=${username}`)
-        .then(response => response.json())
-        .then(data => displayEvents(data, 'userEvents'));
-
-    fetch(`http://127.0.0.1:5000/get_events?genre=favoriteGenre`)
-        .then(response => response.json())
-        .then(data => displayEvents(data, 'notifications'));
-
-    function displayEvents(events, containerId) {
-        const container = document.getElementById(containerId);
-        events.forEach(event => {
-            const eventDiv = document.createElement('div');
-            eventDiv.textContent = `Event: ${event.event_name} at ${event.location} on ${event.date}`;
-            container.appendChild(eventDiv);
-        });
-    }
-});*/
-
-
 function fetchAndDisplayEvents(endpoint, containerId) {
     fetch(endpoint)
         .then(response => response.json())
         .then(events => {
+            console.log("I have got "+events)
             const container = document.getElementById(containerId);
             container.innerHTML = '';
 
@@ -100,6 +56,39 @@ function fetchAndDisplayYourEvents(endpoint, containerId, params) {
         });
 }
 
+function fetchAndDisplayNotifications(endpoint, containerId, params) {
+    last_notfication_time= new Date();
+    const queryString = new URLSearchParams(params).toString();
+    const urlWithParams = `${endpoint}?${queryString}`;
+    fetch(urlWithParams)
+        .then(response => response.json())
+        .then(events => {
+            console.log("I have got "+events)
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            events.forEach(event => {
+//                event = JSON.parse(eventstr)
+                const eventElement = document.createElement('div');
+                eventElement.className = 'event-item';
+                eventElement.innerHTML = `
+                    <h4>${event.event_name}</h4>
+                    <p>Venue: ${event.location}</p>
+                    <p>Date: ${event.date}</p>
+                    <p>Genre: ${event.genre}</p>
+                    <p>Description: ${event.description}</p>
+                    <p>Maximum Capacity: ${event.max_capacity}</p>
+                    <!--<p>Available Capacity: ${event.available_capacity}</p>-->
+                `;
+                container.appendChild(eventElement);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching events:', error);
+            document.getElementById(containerId).innerText = 'Failed to load events.';
+        });
+}
+
 function openTab(evt, tabName) {
     const tabcontent = document.getElementsByClassName("tabcontent");
     for (let content of tabcontent) {
@@ -117,14 +106,14 @@ function openTab(evt, tabName) {
     if (tabName === 'AllEvents') {
         fetchAndDisplayEvents('http://127.0.0.1:5000/get_events', 'AllEvents');
     } else if (tabName === 'YourEvents') {
-        fetchAndDisplayYourEvents('http://127.0.0.1:5000/get_events', 'YourEvents', {username: localStorage.getItem('username')});
+        fetchAndDisplayYourEvents('http://127.0.0.1:5000/get_events', 'YourEvents', {username: sessionStorage.getItem('username')});
     } else if (tabName === 'Notifications') {
-        fetchAndDisplayEvents('/get_notifications', 'Notifications');
+        fetchAndDisplayNotifications('http://127.0.0.1:5000/get_notifications', 'Notifications', {username: sessionStorage.getItem('username')});
     }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    const username = localStorage.getItem('username');
+    const username = sessionStorage.getItem('username');
     if (username) {
         document.getElementById('welcomeMessage').textContent = `Welcome, ${username}!`;
     }
@@ -138,7 +127,7 @@ function registerForEvent(eventId, btnElement) {
     const apiUrl = 'http://127.0.0.1:5000/register';
     const credentials = {
         event_id: eventId,
-        user_id: localStorage.getItem('username')
+        user_id: sessionStorage.getItem('username')
     };
 
     fetch(apiUrl, {
@@ -167,7 +156,7 @@ function unregisterForEvent(eventId, btnElement) {
     const apiUrl = 'http://127.0.0.1:5000/unregister_event';
     const credentials = {
         event_id: eventId,
-        user_id: localStorage.getItem('username')
+        user_id: sessionStorage.getItem('username')
     };
 
     fetch(apiUrl, {

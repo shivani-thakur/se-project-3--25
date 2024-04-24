@@ -4,7 +4,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     var password = document.getElementById('password').value;
 
     if (username && password) {
-        localStorage.setItem('username', username);
+        sessionStorage.setItem('username', username);
 
         const apiUrl = 'http://127.0.0.1:5000/login';
         const credentials = {
