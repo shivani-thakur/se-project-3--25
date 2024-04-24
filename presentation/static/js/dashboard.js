@@ -48,7 +48,7 @@ function fetchAndDisplayEvents(endpoint, containerId) {
         .then(response => response.json())
         .then(events => {
             const container = document.getElementById(containerId);
-            container.innerHTML = '';  // Clear existing content
+            container.innerHTML = '';
 
             events.forEach(event => {
                 const eventElement = document.createElement('div');
@@ -59,7 +59,37 @@ function fetchAndDisplayEvents(endpoint, containerId) {
                     <p>Date: ${event.date}</p>
                     <p>Genre: ${event.genre}</p>
                     <p>Description: ${event.description}</p>
-                    <button onclick="registerForEvent('${event.event_name}')" class="register-btn">Register</button>
+                    <button id="register-btn-${event.event_name}" onclick="registerForEvent('${event.event_name}', this)" class="register-btn">Register</button>
+                `;
+                container.appendChild(eventElement);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching events:', error);
+            document.getElementById(containerId).innerText = 'Failed to load events.';
+        });
+}
+
+function fetchAndDisplayYourEvents(endpoint, containerId, params) {
+    const queryString = new URLSearchParams(params).toString();
+    const urlWithParams = `${endpoint}?${queryString}`;
+    fetch(urlWithParams)
+        .then(response => response.json())
+        .then(events => {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            events.forEach(event => {
+                const eventElement = document.createElement('div');
+                eventElement.className = 'event-item';
+                eventElement.innerHTML = `
+                    <h4>${event.event_name}</h4>
+                    <p>Venue: ${event.location}</p>
+                    <p>Date: ${event.date}</p>
+                    <p>Genre: ${event.genre}</p>
+                    <p>Description: ${event.description}</p>
+                    <p>Maximum Capacity: ${event.max_capacity}</p>
+                    <p>Available Capacity: ${event.available_capacity}</p>
                 `;
                 container.appendChild(eventElement);
             });
@@ -87,7 +117,7 @@ function openTab(evt, tabName) {
     if (tabName === 'AllEvents') {
         fetchAndDisplayEvents('http://127.0.0.1:5000/get_events', 'AllEvents');
     } else if (tabName === 'YourEvents') {
-        fetchAndDisplayEvents('/get_user_events', 'YourEvents');
+        fetchAndDisplayYourEvents('http://127.0.0.1:5000/get_events', 'YourEvents', {username: localStorage.getItem('username')});
     } else if (tabName === 'Notifications') {
         fetchAndDisplayEvents('/get_notifications', 'Notifications');
     }
@@ -103,8 +133,61 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-function registerForEvent(eventId) {
-    console.log(`Registering for event with ID: ${eventId}`);
+function registerForEvent(eventId, btnElement) {
+
+    const apiUrl = 'http://127.0.0.1:5000/register';
+    const credentials = {
+        event_id: eventId,
+        user_id: localStorage.getItem('username')
+    };
+
+    fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(credentials)
+    })
+    .then(response => {
+        if (response.status == 200) {
+            alert("Registered successfully")
+            btnElement.textContent = "Unregister";
+            btnElement.onclick = () => unregisterForEvent(eventId, btnElement);
+        } else {
+            throw new Error('Registration failed');
+        }
+        return response.json();
+    })
+    .catch(error => {
+        alert(error.message);
+    });
 }
 
+function unregisterForEvent(eventId, btnElement) {
+    const apiUrl = 'http://127.0.0.1:5000/unregister_event';
+    const credentials = {
+        event_id: eventId,
+        user_id: localStorage.getItem('username')
+    };
 
+    fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(credentials)
+    })
+    .then(response => {
+        if (response.status == 200) {
+            alert("Unregistered successfully")
+            btnElement.textContent = "Register";
+            btnElement.onclick = () => registerForEvent(eventId, btnElement);
+        } else {
+            throw new Error('Unregistration failed');
+        }
+        return response.json();
+    })
+    .catch(error => {
+        alert(error.message);
+    });
+}

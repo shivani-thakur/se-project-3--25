@@ -34,7 +34,6 @@ event_schema = {
     "available_capacity": int,
     "create_datetime": datetime.datetime,
     "createdBy": str
-
 }
 
 class UserManagement:
@@ -96,17 +95,24 @@ class EventManagement:
     @staticmethod
     @api.route('/register', methods=['POST'])
     def register_event():
+        command_invoker = CommandInvoker(events, users)
         register_dto = request.json
-        return CommandInvoker.invokeCommand("register_event", register_dto)
+        return command_invoker.invokeCommand("register_event", register_dto)
 
     @staticmethod
     @api.route('/get_events', methods=['GET'])
     def get_events():
         command_invoker = CommandInvoker(events, users)
-        genre = request.args.get('genre')
-        dto = {'genre': genre} if genre else None
+        username = request.args.get('username')
+        dto = {'userid': username} if username else None
         return command_invoker.invokeCommand("get_events", dto)
     
+    @staticmethod
+    @api.route('/unregister_event', methods=['POST'])
+    def unregister_event():
+        command_invoker = CommandInvoker(events, users)
+        unregister_dto = request.json
+        return command_invoker.invokeCommand("unregister_event", unregister_dto)
 
 
 app.register_blueprint(api)
