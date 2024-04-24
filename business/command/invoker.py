@@ -1,5 +1,5 @@
 
-from command.command import CreateEventCommand, RegisterEventCommand, GetEventsCommand
+from command.command import CreateEventCommand, RegisterEventCommand, GetEventsCommand, GetNotificationCommand
 
 
 class CommandInvoker:
@@ -7,7 +7,8 @@ class CommandInvoker:
         self.commands = {
             "create_event": CreateEventCommand(events_collection, users_collection),
             "register_event": RegisterEventCommand(),
-            "get_events": GetEventsCommand(events_collection)
+            "get_events": GetEventsCommand(events_collection),
+            "get_notifications" : GetNotificationCommand(users_collection)
         }
     # def set_command(self, command):
     #     self.command = command

@@ -5,6 +5,9 @@ from pymongo import MongoClient
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
+from kafka import KafkaProducer
+from kafka.admin import KafkaAdminClient, NewTopic
+import json
 
 
 app = Flask(__name__)
@@ -34,8 +37,39 @@ event_schema = {
     "available_capacity": int,
     "create_datetime": datetime.datetime,
     "createdBy": str
-
 }
+
+# Define Kafka bootstrap servers
+bootstrap_servers = 'localhost:9092'
+
+# Define Kafka topics
+topics = ["conference", "workshop", "concert", "festival", "tournament"]
+
+
+# Function to create Kafka topics if they don't exist
+def create_topics_if_not_exist():
+    admin_client = KafkaAdminClient(bootstrap_servers=bootstrap_servers)
+    existing_topics = admin_client.list_topics()
+    new_topics = [NewTopic(name=topic, num_partitions=1, replication_factor=1) for topic in topics if topic not in existing_topics]
+    if new_topics:
+        admin_client.create_topics(new_topics=new_topics, validate_only=False)
+    admin_client.close()
+
+
+# # Create Kafka topics
+create_topics_if_not_exist()
+
+
+# Function to list all current topics
+def list_topics():
+    admin_client = KafkaAdminClient(bootstrap_servers=bootstrap_servers)
+    topics_metadata = admin_client.list_topics()
+    print(topics_metadata)
+    admin_client.close()
+
+# List all current topics
+# list_topics()
+
 
 class UserManagement:
     @staticmethod
@@ -106,7 +140,13 @@ class EventManagement:
         genre = request.args.get('genre')
         dto = {'genre': genre} if genre else None
         return command_invoker.invokeCommand("get_events", dto)
-    
+
+    @staticmethod
+    @api.route('/get_notifications', methods=['GET'])
+    def get_notifications():
+        command_invoker = CommandInvoker(events, users)
+        username = request.args.get('username')
+        return command_invoker.invokeCommand("get_notifications", username)
 
 
 app.register_blueprint(api)
