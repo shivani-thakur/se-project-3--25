@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+    <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+<body>
+    <div class="form-container">
+        <form id="signupForm">
+            <h2>Signup</h2>
+            <div class="input-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="input-group">
+                <label for="genre">Favorite Genres:</label>
+                <select id="genre" name="genre" multiple size="5">
+                    <option value="conference">Conference</option>
+                    <option value="workshp">Workshop</option>
+                    <option value="concert">Concert</option>
+                    <option value="festivel">Festivel</option>
+                    <option value="tournament">Tournament</option>
+                </select>
+            </div>
+            <button type="submit">Signup</button>
+            <p class="redirect">
+                Already registered? <a href="/">Log in</a>
+            </p>
+        </form>
+    </div>
+    <script src="../static/js/signup.js"></script>
+</body>
+</html>
