@@ -27,7 +27,7 @@ document.getElementById('createEventForm').addEventListener('submit', function(e
         max_capacity: parseInt(maxcap),
         available_capacity: parseInt(maxcap),
         create_datetime: new Date(),
-        createdBy: localStorage.getItem('username')
+        createdBy: sessionStorage.getItem('username')
     };
 
     fetch(apiEndpoint, {

@@ -106,14 +106,14 @@ function openTab(evt, tabName) {
     if (tabName === 'AllEvents') {
         fetchAndDisplayEvents('http://127.0.0.1:5000/get_events', 'AllEvents');
     } else if (tabName === 'YourEvents') {
-        fetchAndDisplayYourEvents('http://127.0.0.1:5000/get_events', 'YourEvents', {username: localStorage.getItem('username')});
+        fetchAndDisplayYourEvents('http://127.0.0.1:5000/get_events', 'YourEvents', {username: sessionStorage.getItem('username')});
     } else if (tabName === 'Notifications') {
-        fetchAndDisplayNotifications('http://127.0.0.1:5000/get_notifications', 'Notifications', {username: localStorage.getItem('username')});
+        fetchAndDisplayNotifications('http://127.0.0.1:5000/get_notifications', 'Notifications', {username: sessionStorage.getItem('username')});
     }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    const username = localStorage.getItem('username');
+    const username = sessionStorage.getItem('username');
     if (username) {
         document.getElementById('welcomeMessage').textContent = `Welcome, ${username}!`;
     }
@@ -127,7 +127,7 @@ function registerForEvent(eventId, btnElement) {
     const apiUrl = 'http://127.0.0.1:5000/register';
     const credentials = {
         event_id: eventId,
-        user_id: localStorage.getItem('username')
+        user_id: sessionStorage.getItem('username')
     };
 
     fetch(apiUrl, {
@@ -156,7 +156,7 @@ function unregisterForEvent(eventId, btnElement) {
     const apiUrl = 'http://127.0.0.1:5000/unregister_event';
     const credentials = {
         event_id: eventId,
-        user_id: localStorage.getItem('username')
+        user_id: sessionStorage.getItem('username')
     };
 
     fetch(apiUrl, {

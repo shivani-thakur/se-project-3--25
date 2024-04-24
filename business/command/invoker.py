@@ -9,7 +9,7 @@ class CommandInvoker:
             "register_event": RegisterEventCommand(),
             "get_events": GetEventsCommand(),
             "get_notifications": GetNotificationsCommand(),
-            "unregister_event": UnregisterEventCommand(events_collection, users_collection)
+            "unregister_event": UnregisterEventCommand()
         }
     # def set_command(self, command):
     #     self.command = command

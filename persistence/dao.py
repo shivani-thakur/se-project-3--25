@@ -68,6 +68,18 @@ class UserDao:
         }
         users.update_one(filter_criteria, update_operation)
 
+    def userRegister(self, dto):
+        users.update_one(
+            {"userid": dto["user_id"]},
+            {"$push": {"registered_events": dto["registered_events"]}}
+        )
+
+    def userUnregister(self, dto):
+        users.update_one(
+            {"userid": dto["user_id"]},
+            {"$pull": {"registered_events": dto["registered_events"]}}
+        )
+
 class EventDao:
     def getAllEvents(self):
         print("///////////////////////////////inside get all events^^^^^^^^^^^^^")
@@ -77,6 +89,9 @@ class EventDao:
     def getEventsByUser(self, dto):
         print("############################## inside get events by user &&&&&&&&&&")
         return events.find({"createdBy": dto["userid"]}, {'_id': 0}).sort("create_datetime", -1)
+
+    def getEventByName(self, dto):
+        return events.find_one({"event_name": dto["event_id"]})
 
     def createEvent(self, event_data):
         print("66666666666666event time: ", )
@@ -93,3 +108,14 @@ class EventDao:
         if not last_notification_time or not user_genres: raise InvalidUsernameError(data["userid"])
         return events.find({"create_datetime": {"$gt": last_notification_time},
                                     "genre": {"$in": user_genres}}, {"_id": 0}).sort("create_datetime", -1)
+
+    def decreaseAvailibility(self, dto):
+        filtervar = {'event_name': dto["event_id"]}
+        update = {'$inc': {'available_capacity': -1}}
+
+        return events.update_one(filtervar, update)
+
+    def increaseAvailibility(self, dto):
+        filtervar = {'event_name': dto["event_id"]}
+        update = {'$inc': {'available_capacity': 1}}
+        return events.update_one(filtervar, update)
