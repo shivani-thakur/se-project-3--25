@@ -72,11 +72,11 @@ class EventDao:
     def getAllEvents(self):
         print("///////////////////////////////inside get all events^^^^^^^^^^^^^")
 
-        return events.find({}, {'_id': 0})
+        return events.find({}, {'_id': 0}).sort("create_datetime", -1)
 
     def getEventsByUser(self, dto):
         print("############################## inside get events by user &&&&&&&&&&")
-        return events.find({"createdBy": dto["userid"]}, {'_id': 0})
+        return events.find({"createdBy": dto["userid"]}, {'_id': 0}).sort("create_datetime", -1)
 
     def createEvent(self, event_data):
         print("66666666666666event time: ", )
@@ -92,4 +92,4 @@ class EventDao:
         print("user_genres", user_genres)
         if not last_notification_time or not user_genres: raise InvalidUsernameError(data["userid"])
         return events.find({"create_datetime": {"$gt": last_notification_time},
-                                    "genre": {"$in": user_genres}}, {"_id": 0})
+                                    "genre": {"$in": user_genres}}, {"_id": 0}).sort("create_datetime", -1)

@@ -32,12 +32,74 @@ class CreateEventCommand(CommandInterface):
 
 
 class RegisterEventCommand(CommandInterface):
-    # def __init__(self, dto):
-    #     self.dto = dto
+    def __init__(self, events_collection, users_collection):
+        self.events = events_collection
+        self.users = users_collection
 
     def execute(self, dto):
-        # logic to register user to event
-        pass
+        if not all(key in dto for key in ["event_id", "user_id"]):
+            return jsonify({"message": "Missing fields in registration data"}), 400
+
+        event = self.events.find_one({"event_name": dto["event_id"]})
+        if not event:
+            return jsonify({"message": "Event not found"}), 404
+        
+        user = self.users.find_one({"userid": dto["user_id"]})
+        if not user:
+            return jsonify({"message": "User not found"}), 404
+
+        if any(event["event_name"] == registered_event['event_name'] for registered_event in user.get("registered_events", [])):
+            print("here")
+            return jsonify({"message": "User already registered for this event"}), 409
+
+        if event['available_capacity'] == 0:
+            return jsonify({"message": "Event is full"}), 409
+
+        filtervar = {'event_name': dto["event_id"]}
+        update = {'$inc': {'available_capacity': -1}}
+
+        result = self.events.update_one(filtervar, update)
+        if result.modified_count == 0:
+            return jsonify({"message": "Event is full or not found"}), 400
+
+        self.users.update_one(
+            {"userid": dto["user_id"]},
+            {"$push": {"registered_events": event}}
+        )
+
+        return jsonify({"message": "Successfully registered for the event"}), 200
+
+
+class UnregisterEventCommand(CommandInterface):
+    def __init__(self, events_collection, users_collection):
+        self.events = events_collection
+        self.users = users_collection
+
+    def execute(self, dto):
+        if not all(key in dto for key in ["event_id", "user_id"]):
+            return jsonify({"message": "Missing fields in registration data"}), 400
+        
+        event = self.events.find_one({"event_name": dto["event_id"]})
+        if not event:
+            return jsonify({"message": "Event not found"}), 404
+        
+        user = self.users.find_one({"userid": dto["user_id"]})
+        if not user:
+            return jsonify({"message": "User not found"}), 404
+        
+        if any(event["event_name"] == registered_event['event_name'] for registered_event in user.get("registered_events", [])):        
+            filtervar = {'event_name': dto["event_id"]}
+            update = {'$inc': {'available_capacity': 1}}
+            result = self.events.update_one(filtervar, update)
+
+            self.users.update_one(
+                {"userid": dto["user_id"]},
+                {"$pull": {"registered_events": event}}
+            )
+            return jsonify({"message": "Successfully unregistered from the event"}), 200
+        else:
+            return jsonify({"message": "User is not registered for the event"}), 409
+
 
 
 class GetEventsCommand(CommandInterface):
@@ -47,13 +109,10 @@ class GetEventsCommand(CommandInterface):
 
         event_dao = EventDao()
         if dto and "userid" in dto:
-            # events_cursor = self.events.find({"createdBy": dto["userid"]}, {'_id': 0})
             events_cursor = event_dao.getEventsByUser(dto)
         else:
             events_cursor = event_dao.getAllEvents()
-
-        # if not events_cursor: return jsonify({"message": "NO NEW NOTIFICATIONS"})
-
+        
         events_list = list(events_cursor)
         print("888888888888888888888888888888", events_list)
         return jsonify(events_list), 200

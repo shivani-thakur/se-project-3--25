@@ -24,8 +24,8 @@ document.getElementById('createEventForm').addEventListener('submit', function(e
         date: date,
         description: description,
         genre: genre,
-        max_capacity: maxcap,
-        available_capacity: maxcap,
+        max_capacity: parseInt(maxcap),
+        available_capacity: parseInt(maxcap),
         create_datetime: new Date(),
         createdBy: localStorage.getItem('username')
     };
