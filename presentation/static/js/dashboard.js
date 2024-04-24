@@ -47,6 +47,7 @@ function fetchAndDisplayEvents(endpoint, containerId) {
     fetch(endpoint)
         .then(response => response.json())
         .then(events => {
+            console.log("I have got "+events)
             const container = document.getElementById(containerId);
             container.innerHTML = '';  // Clear existing content
 
@@ -60,6 +61,39 @@ function fetchAndDisplayEvents(endpoint, containerId) {
                     <p>Genre: ${event.genre}</p>
                     <p>Description: ${event.description}</p>
                     <button onclick="registerForEvent('${event.event_name}')" class="register-btn">Register</button>
+                `;
+                container.appendChild(eventElement);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching events:', error);
+            document.getElementById(containerId).innerText = 'Failed to load events.';
+        });
+}
+
+function fetchAndDisplayNotifications(endpoint, containerId, params) {
+    last_notfication_time= new Date();
+    const queryString = new URLSearchParams(params).toString();
+    const urlWithParams = `${endpoint}?${queryString}`;
+    fetch(urlWithParams)
+        .then(response => response.json())
+        .then(events => {
+            console.log("I have got "+events)
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            events.forEach(event => {
+//                event = JSON.parse(eventstr)
+                const eventElement = document.createElement('div');
+                eventElement.className = 'event-item';
+                eventElement.innerHTML = `
+                    <h4>${event.event_name}</h4>
+                    <p>Venue: ${event.location}</p>
+                    <p>Date: ${event.date}</p>
+                    <p>Genre: ${event.genre}</p>
+                    <p>Description: ${event.description}</p>
+                    <p>Maximum Capacity: ${event.max_capacity}</p>
+                    <!--<p>Available Capacity: ${event.available_capacity}</p>-->
                 `;
                 container.appendChild(eventElement);
             });
@@ -89,7 +123,7 @@ function openTab(evt, tabName) {
     } else if (tabName === 'YourEvents') {
         fetchAndDisplayEvents('/get_user_events', 'YourEvents');
     } else if (tabName === 'Notifications') {
-        fetchAndDisplayEvents('/get_notifications', 'Notifications');
+        fetchAndDisplayNotifications('http://127.0.0.1:5000/get_notifications', 'Notifications', {username: localStorage.getItem('username')});
     }
 }
 
@@ -106,5 +140,4 @@ document.addEventListener('DOMContentLoaded', function() {
 function registerForEvent(eventId) {
     console.log(`Registering for event with ID: ${eventId}`);
 }
-
 

@@ -1,13 +1,15 @@
-
-from command.command import CreateEventCommand, RegisterEventCommand, GetEventsCommand
+# sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+# from command import CreateEventCommand, RegisterEventCommand, GetEventsCommand
+from business.command.command import CreateEventCommand, RegisterEventCommand, GetEventsCommand, GetNotificationsCommand
 
 
 class CommandInvoker:
-    def __init__(self, events_collection, users_collection):
+    def __init__(self):
         self.commands = {
-            "create_event": CreateEventCommand(events_collection, users_collection),
+            "create_event": CreateEventCommand(),
             "register_event": RegisterEventCommand(),
-            "get_events": GetEventsCommand(events_collection)
+            "get_events": GetEventsCommand(),
+            "get_notifications": GetNotificationsCommand()
         }
     # def set_command(self, command):
     #     self.command = command
