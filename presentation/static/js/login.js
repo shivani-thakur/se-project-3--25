@@ -1,8 +1,8 @@
 document.getElementById('loginForm').addEventListener('submit', function(event) {
     event.preventDefault();
-    // Simple validation to check if fields are empty (update as per your validation logic)
     var username = document.getElementById('username').value;
     var password = document.getElementById('password').value;
+
     if (username && password) {
         const apiUrl = 'http://127.0.0.1:5000/login';
         const credentials = {
@@ -31,8 +31,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
         .catch(error => {
             alert(error.message);
         });
-    }
-    else {
-        alert('Please enter username and password');
+    } else {
+        alert('Please enter both username and password.');
     }
 });

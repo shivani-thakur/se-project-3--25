@@ -14,5 +14,9 @@ def events():
 def createevent():
     return render_template('create_event.html')
 
+@app.route('/templates/signup.html')
+def signup():
+    return render_template('signup.html')
+
 if __name__ == '__main__':
     app.run(port=3000, debug=True)

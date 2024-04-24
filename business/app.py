@@ -13,7 +13,7 @@ users = db['users']
 user_schema = {
     "userid": str,
     "password": str,
-    "genre": str,
+    "genre": [str],
     "objects": [dict]
 }
 
