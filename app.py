@@ -94,8 +94,9 @@ class EventManagement:
     @staticmethod
     @api.route('/register', methods=['POST'])
     def register_event():
+        command_invoker = CommandInvoker(events, users)
         register_dto = request.json
-        return CommandInvoker.invokeCommand("register_event", register_dto)
+        return command_invoker.invokeCommand("register_event", register_dto)
 
     @staticmethod
     @api.route('/get_events', methods=['GET'])
@@ -114,6 +115,13 @@ class EventManagement:
         events_list = EventManagement.command_invoker.invokeCommand("get_notifications", data)
         # if not events_list: return jsonify({"message": "Invalid username"}), 401
         return events_list
+
+    @staticmethod
+    @api.route('/unregister_event', methods=['POST'])
+    def unregister_event():
+        command_invoker = CommandInvoker(events, users)
+        unregister_dto = request.json
+        return command_invoker.invokeCommand("unregister_event", unregister_dto)
 
 
 app.register_blueprint(api)
