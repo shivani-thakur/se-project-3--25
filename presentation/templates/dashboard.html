@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="../static/css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1 id="welcomeMessage">Welcome, [Username]!</h1>
+            <button onclick="window.location.href='create_event.html'">Create Event</button>
+        </header>
+        <div class="tab">
+            <button class="tablinks" onclick="openTab(event, 'AllEvents')" id="defaultOpen">All Events</button>
+            <button class="tablinks" onclick="openTab(event, 'Notifications')">Notifications</button>
+            <button class="tablinks" onclick="openTab(event, 'YourEvents')">Your Events</button>
+        </div>
+        
+        <div id="YourEvents" class="tabcontent">
+            <h3>Your Events</h3>
+            <div class="events-list">
+                <!-- User's events will be populated here -->
+            </div>
+        </div>
+
+        <div id="Notifications" class="tabcontent">
+            <h3>Notifications</h3>
+            <div class="events-list">
+                <!-- Notifications will be populated here -->
+            </div>
+        </div>
+
+        <div id="AllEvents" class="tabcontent">
+            <h3>All Events</h3>
+            <div class="events-list">
+                <!-- All events will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../static/js/dashboard.js"></script>
+</body>
+</html>

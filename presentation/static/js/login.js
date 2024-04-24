@@ -4,6 +4,8 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     var password = document.getElementById('password').value;
 
     if (username && password) {
+        localStorage.setItem('username', username);
+
         const apiUrl = 'http://127.0.0.1:5000/login';
         const credentials = {
             username: username,
@@ -19,11 +21,12 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
         })
         .then(response => {
             if (response.status == 200) {
-                window.location.href = '../templates/events.html';
+                window.user = username;
+                window.location.href = '../templates/dashboard.html';
             } else if(response.status == 401) {
                 throw new Error('Login failed: ' + response.statusText);
             } else {
-                throw new Error('Login failed: ' + (data.message || 'Unknown error'));
+                throw new Error('Login failed: Unknown error');
             }
             return response.json();
         })

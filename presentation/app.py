@@ -6,9 +6,9 @@ app = Flask(__name__)
 def home():
     return render_template('index.html')
 
-@app.route('/templates/events.html')
-def events():
-    return render_template('events.html')
+@app.route('/templates/dashboard.html')
+def dashboard():
+    return render_template('dashboard.html')
 
 @app.route('/templates/create_event.html')
 def createevent():

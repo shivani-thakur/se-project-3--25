@@ -1,9 +1,11 @@
 # from business.command.invoker import CommandInvoker
 from command.invoker import CommandInvoker
 from flask import Flask, jsonify, request, Blueprint
-from flask import Flask, jsonify, request, Blueprint
 from pymongo import MongoClient
 from flask_cors import CORS
+from werkzeug.security import generate_password_hash, check_password_hash
+import datetime
+
 
 app = Flask(__name__)
 CORS(app)
@@ -17,7 +19,8 @@ user_schema = {
     "userid": str,
     "password": str,
     "genre": [str],
-    "objects": [dict]
+    "registered_events": [dict],
+    "last_notfication_time": datetime.datetime
 }
 
 events = db['events']
@@ -25,7 +28,13 @@ event_schema = {
     "event_name": str,
     "location": str,
     "date": str,
-    "genre": str
+    "genre": str,
+    "description": str,
+    "max_capacity": int,
+    "available_capacity": int,
+    "create_datetime": datetime.datetime,
+    "createdBy": str
+
 }
 
 class UserManagement:
@@ -35,21 +44,40 @@ class UserManagement:
         data = request.json
         username = data.get('username')
         password = data.get('password')
-        print("api hit successful")
-        user = users.find_one({'userid': username, 'password': password})
 
-        if user:
+        user = users.find_one({'userid': username})
+
+        if user and check_password_hash(user['password'], password):
             return jsonify({"message": "Login successful"}), 200
         else:
-            print("user not found")
             return jsonify({"message": "Invalid username or password"}), 401
     
     @staticmethod
     @api.route('/add_user', methods=['POST'])
     def add_user():
-        user_data = request.json
-        users.insert_one(user_data)
-        return jsonify({"message": "User added successfully!"})
+        data = request.json
+        username = data.get('userid')
+        password = data.get('password')
+        genres = data.get('genres')
+        lasttime = data.get('last_notfication_time')
+
+        existing_user = users.find_one({'userid': username})
+
+        if existing_user:
+            return jsonify({"message": "User already exists"}), 401
+        
+        hashed_password = generate_password_hash(password)
+
+        user = {
+            'userid': username,
+            'password': hashed_password,
+            'genres': genres,
+            'last_notfication_time': lasttime
+        }
+
+        users.insert_one(user)
+        
+        return jsonify({"message": "User added successfully!"}), 200
 
     @staticmethod
     @api.route('/get_users', methods=['GET'])
@@ -58,15 +86,12 @@ class UserManagement:
         return jsonify(all_users)
 
 class EventManagement:
-    commandInvoker = CommandInvoker()
     @staticmethod
     @api.route('/add_event', methods=['POST'])
     def add_event():
+        command_invoker = CommandInvoker(events, users)
         event_dto = request.json
-        # events.insert_one(event_data)
-        # put the above logic in command invoker
-        return CommandInvoker.invokeCommand("create_event", event_dto)
-        return jsonify({"message": "Event added successfully!"})
+        return command_invoker.invokeCommand("create_event", event_dto)
     
     @staticmethod
     @api.route('/register', methods=['POST'])
@@ -74,11 +99,13 @@ class EventManagement:
         register_dto = request.json
         return CommandInvoker.invokeCommand("register_event", register_dto)
 
-    # @staticmethod
-    # @api.route('/get_events', methods=['GET'])
-    # def get_events():
-    #     all_events = list(events.find({}, {'_id': 0}))
-    #     return jsonify(all_events)
+    @staticmethod
+    @api.route('/get_events', methods=['GET'])
+    def get_events():
+        command_invoker = CommandInvoker(events, users)
+        genre = request.args.get('genre')
+        dto = {'genre': genre} if genre else None
+        return command_invoker.invokeCommand("get_events", dto)
     
 
 

@@ -10,7 +10,8 @@ document.getElementById('signupForm').addEventListener('submit', function(event)
         const userData = {
             userid: username,
             password: password,
-            genres: genres
+            genres: genres,
+            last_notfication_time: new Date()
         };
 
         fetch('http://127.0.0.1:5000/add_user', {
@@ -20,15 +21,18 @@ document.getElementById('signupForm').addEventListener('submit', function(event)
             },
             body: JSON.stringify(userData)
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Success:', data);
-            alert("Signup successful.")
-            window.location.href = '/';
+        .then(response => {
+            if (response.status == 200) {
+                alert("Signup successful.")
+                window.location.href = '/';
+            } else {
+                throw new Error('Signup failed: Unknown error');
+            }    
+            return response.json();
         })
         .catch((error) => {
             console.error('Error:', error);
-            alert('An error occurred while signing up. Please try again.');
+            alert(error.message);
         });
     } else {
         alert('Please fill in all fields and select at least one genre.');
