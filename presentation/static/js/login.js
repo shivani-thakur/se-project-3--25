@@ -18,7 +18,6 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
             body: JSON.stringify(credentials)
         })
         .then(response => {
-            // Check if the HTTP status code is 200 or a specific success code that your API sends
             if (response.status == 200) {
                 window.location.href = '../templates/events.html';
             } else if(response.status == 401) {
